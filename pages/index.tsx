@@ -1,4 +1,4 @@
-import { NavBar, Screen } from "@joshtsch/legos";
+import { Container, Footer, NavBar, Screen } from "@joshtsch/legos";
 import { Program, Provider, web3 } from "@project-serum/anchor";
 import {
   ConfirmOptions,
@@ -13,8 +13,8 @@ import idl from "../idl/idl.json";
 import kp from "../keypair.json";
 
 // Constants
-// const TWITTER_HANDLE = "_buildspace";
-// const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
+const TWITTER_HANDLE = "_buildspace";
+const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
 // const TEST_GIFS = [
 //   "https://media.giphy.com/media/mz7iww9tCUnJJeZvGN/giphy.gif",
 //   "https://media.giphy.com/media/A7glKaSuRNd5lN0dJU/giphy.gif",
@@ -185,6 +185,7 @@ const Home: NextPage = () => {
               event.preventDefault();
               sendGif();
             }}
+            style={{ display: "flex", justifyContent: "center" }}
           >
             <input
               type="text"
@@ -196,28 +197,37 @@ const Home: NextPage = () => {
               Submit
             </button>
           </form>
-          <div className="gif-grid">
-            {gifList.map((item, index) => (
-              <div
-                className="gif-item"
-                key={index}
-                style={{
-                  position: "relative",
-                  height: "200px",
-                  width: "200px",
-                }}
-              >
-                <div style={{ position: "absolute" }}>
-                  <Image
-                    src={item.gifLink}
-                    alt="gif link"
-                    width={200}
-                    height={200}
-                  />
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
+              gap: "2rem",
+            }}
+          >
+            {gifList.map((item, index) => {
+              console.log(item.gifLink);
+              return (
+                <div
+                  className="gif-item"
+                  key={index}
+                  style={{
+                    position: "relative",
+                    height: "200px",
+                    width: "200px",
+                  }}
+                >
+                  <div style={{ position: "absolute" }}>
+                    <Image
+                      src={item.gifLink}
+                      alt="gif link"
+                      width={200}
+                      height={200}
+                    />
+                  </div>
+                  <div style={{ position: "absolute" }}>HEY</div>
                 </div>
-                <div style={{ position: "absolute" }}>HEY</div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       );
@@ -257,58 +267,32 @@ const Home: NextPage = () => {
   }, [walletAddress]);
 
   return (
-    // <div className="App">
-    //   <div className={walletAddress ? "authed-container" : "container"}>
-    //     {walletAddress && <NavBar walletAddress={walletAddress} />}
-    //     <div className="header-container">
-    //       <p className="header">💎 Diamond GIF Portal 💎</p>
-    //       <p className="sub-text">
-    //         ✨💎 View your GIF collection in the metaverse 💎✨
-    //       </p>
-
-    //       {walletAddress
-    //         ? renderConnectedContainer()
-    //         : renderNotConnectedContainer()}
-    //     </div>
-    //     <div className="footer-container">
-    //       <Image
-    //         alt="Twitter Logo"
-    //         className="twitter-logo"
-    //         src={twitterLogo}
-    //         width="32px"
-    //         height="32px"
-    //       />
-    //       <a
-    //         className="footer-text"
-    //         href={TWITTER_LINK}
-    //         target="_blank"
-    //         rel="noreferrer"
-    //       >{`built on @${TWITTER_HANDLE}`}</a>
-    //     </div>
-    //   </div>
-    // </div>
     <Screen>
       {walletAddress && <NavBar walletAddress={walletAddress} />}
-      <div
+      <Container
         style={{
+          flexDirection: "column",
           alignItems: "center",
-          display: "flex",
           flexGrow: 1,
           justifyContent: "center",
-          padding: "0 2.5rem",
+          marginBottom: "2rem",
+          marginTop: "2rem",
         }}
       >
-        <div className="header-container">
-          <p className="header">💎 Diamond GIF Portal 💎</p>
-          <p className="sub-text">
-            ✨💎 View your GIF collection in the metaverse 💎✨
-          </p>
+        <p className="header">💎 Diamond GIF Portal 💎</p>
+        <p className="sub-text">
+          ✨💎 View your GIF collection in the metaverse 💎✨
+        </p>
 
-          {walletAddress
-            ? renderConnectedContainer()
-            : renderNotConnectedContainer()}
-        </div>
-      </div>
+        {walletAddress
+          ? renderConnectedContainer()
+          : renderNotConnectedContainer()}
+      </Container>
+      <Footer
+        socialMedia={[
+          { alt: "Twitter", href: TWITTER_LINK, logo: "/twitter-logo.svg" },
+        ]}
+      />
     </Screen>
   );
 };
