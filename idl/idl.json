@@ -24,7 +24,7 @@
       "args": []
     },
     {
-      "name": "addGif",
+      "name": "addTweet",
       "accounts": [
         {
           "name": "baseAccount",
@@ -39,7 +39,11 @@
       ],
       "args": [
         {
-          "name": "gifLink",
+          "name": "link",
+          "type": "string"
+        },
+        {
+          "name": "username",
           "type": "string"
         }
       ]
@@ -52,14 +56,14 @@
         "kind": "struct",
         "fields": [
           {
-            "name": "totalGifs",
+            "name": "tweetCount",
             "type": "u64"
           },
           {
-            "name": "gifList",
+            "name": "tweetList",
             "type": {
               "vec": {
-                "defined": "ItemStruct"
+                "defined": "TweetStruct"
               }
             }
           }
@@ -69,12 +73,16 @@
   ],
   "types": [
     {
-      "name": "ItemStruct",
+      "name": "TweetStruct",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "gifLink",
+            "name": "twitterHandle",
+            "type": "string"
+          },
+          {
+            "name": "twitterLink",
             "type": "string"
           },
           {

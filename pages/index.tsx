@@ -7,21 +7,14 @@ import {
   clusterApiUrl,
 } from "@solana/web3.js";
 import type { NextPage } from "next";
-import Image from "next/image";
-import { ChangeEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { Input } from "../components/Input";
+import Tweet from "../components/Tweet";
 import idl from "../idl/idl.json";
 import kp from "../keypair.json";
 
-// Constants
 const TWITTER_HANDLE = "_buildspace";
 const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
-// const TEST_GIFS = [
-//   "https://media.giphy.com/media/mz7iww9tCUnJJeZvGN/giphy.gif",
-//   "https://media.giphy.com/media/A7glKaSuRNd5lN0dJU/giphy.gif",
-//   "https://media.giphy.com/media/xUNemHqSwUaBNktQ76/giphy.gif",
-//   "https://media.giphy.com/media/d0DdMCREQChi3jGymW/giphy.gif",
-//   "https://media.giphy.com/media/oBQZIgNobc7ewVWvCd/giphy.gif",
-// ];
 
 // SystemProgram is a reference to the Solana runtime!
 const { SystemProgram } = web3;
@@ -30,11 +23,7 @@ const { SystemProgram } = web3;
 const arr: any[] = Object.values(kp._keypair.secretKey);
 const secret = new Uint8Array(arr);
 const baseAccount = web3.Keypair.fromSecretKey(secret);
-
-// Get our program's id from the IDL file.
 const programID = new PublicKey(idl.metadata.address);
-
-// Set our network to devnet.
 const network = clusterApiUrl("devnet");
 
 // Controls how we want to acknowledge when a transaction is "done".
@@ -42,14 +31,15 @@ const opts = {
   preflightCommitment: "processed" as ConfirmOptions,
 };
 
-interface Gif {
-  gifLink: string;
+interface Tweet {
+  username: string;
+  link: string;
 }
 
 const Home: NextPage = () => {
   const [walletAddress, setWalletAddress] = useState(null);
   const [inputValue, setInputValue] = useState<string>("");
-  const [gifList, setGifList] = useState<Gif[] | null>([]);
+  const [tweetList, setTweetList] = useState<Tweet[] | null>([]);
 
   const checkIfWalletIsConnected = async () => {
     try {
@@ -85,14 +75,8 @@ const Home: NextPage = () => {
     }
   };
 
-  const onInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const { value } = event.target;
-    setInputValue(value);
-  };
-
   const getProvider = () => {
     const connection = new Connection(network, opts.preflightCommitment);
-    console.log({ connection }, opts.preflightCommitment);
     const provider = new Provider(
       connection,
       window.solana,
@@ -101,14 +85,11 @@ const Home: NextPage = () => {
     return provider;
   };
 
-  const createGifAccount = async () => {
+  const createAccount = async () => {
     try {
       const provider = getProvider();
-      console.log({ provider });
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const program = new Program(idl as any, programID, provider);
-      console.log("ping");
-      console.log(provider.wallet.publicKey);
       await program.rpc.startStuffOff({
         accounts: {
           baseAccount: baseAccount.publicKey,
@@ -121,35 +102,59 @@ const Home: NextPage = () => {
         "Created a new BaseAccount w/ address:",
         baseAccount.publicKey.toString()
       );
-      await getGifList();
+      await getTweetList();
     } catch (error) {
       console.log("Error creating BaseAccount account:", error);
     }
   };
 
-  const sendGif = async () => {
+  const sendTweet = async () => {
     if (inputValue.length === 0) {
-      console.log("No gif link given!");
+      console.log("No tweet link given!");
       return;
     }
     setInputValue("");
-    console.log("Gif link:", inputValue);
+    console.log("Tweet link:", inputValue);
     try {
       const provider = getProvider();
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const program = new Program(idl as any, programID, provider);
+      const twitterHandle = inputValue.split("/")[3];
 
-      await program.rpc.addGif(inputValue, {
+      await program.rpc.addTweet(inputValue, twitterHandle, {
         accounts: {
           baseAccount: baseAccount.publicKey,
           user: provider.wallet.publicKey.toString(),
         },
       });
-      console.log("GIF successfully sent to program", inputValue);
+      console.log("Tweet successfully sent to program", inputValue);
 
-      await getGifList();
+      await getTweetList();
     } catch (error) {
-      console.log("Error sending GIF:", error);
+      console.log("Error sending Tweet:", error);
+    }
+  };
+
+  const getTweetList = async () => {
+    try {
+      const provider = getProvider();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const program = new Program(idl as any, programID, provider);
+      const account = await program.account.baseAccount.fetch(
+        baseAccount.publicKey
+      );
+
+      console.log("Got the account", account);
+      setTweetList(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        account.tweetList.map(({ twitterLink, twitterHandle }: any) => ({
+          link: twitterLink,
+          username: twitterHandle,
+        })) || []
+      );
+    } catch (error) {
+      console.log("Error in getTweetList: ", error);
+      setTweetList(null);
     }
   };
 
@@ -163,68 +168,39 @@ const Home: NextPage = () => {
   );
 
   const renderConnectedContainer = () => {
-    // If we hit this, it means the program account hasn't been initialized.
-    if (gifList === null) {
+    if (tweetList === null) {
       return (
         <div className="connected-container">
           <button
             className="cta-button submit-gif-button"
-            onClick={createGifAccount}
+            onClick={createAccount}
           >
-            Do One-Time Initialization For GIF Program Account
+            Do One-Time Initialization For Tweet Program Account
           </button>
         </div>
       );
-    }
-    // Otherwise, we're good! Account exists. User can submit GIFs.
-    else {
+    } else {
       return (
         <div className="connected-container">
-          <form
+          <Input
+            setInputValue={setInputValue}
             onSubmit={(event) => {
               event.preventDefault();
-              sendGif();
+              sendTweet();
             }}
-            style={{ display: "flex", justifyContent: "center" }}
-          >
-            <input
-              type="text"
-              placeholder="Enter gif link!"
-              value={inputValue}
-              onChange={onInputChange}
-            />
-            <button type="submit" className="cta-button submit-gif-button">
-              Submit
-            </button>
-          </form>
+            value={inputValue}
+          />
           <div
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
-              gap: "2rem",
+              gap: "1rem",
             }}
           >
-            {gifList.map((item, index) => {
-              console.log(item.gifLink);
+            {tweetList.map(({ link }, index) => {
               return (
-                <div
-                  className="gif-item"
-                  key={index}
-                  style={{
-                    position: "relative",
-                    height: "200px",
-                    width: "200px",
-                  }}
-                >
-                  <div style={{ position: "absolute" }}>
-                    <Image
-                      src={item.gifLink}
-                      alt="gif link"
-                      width={200}
-                      height={200}
-                    />
-                  </div>
-                  <div style={{ position: "absolute" }}>HEY</div>
+                <div key={index}>
+                  <Tweet url={link} />
                 </div>
               );
             })}
@@ -242,32 +218,15 @@ const Home: NextPage = () => {
     return () => window.removeEventListener("load", onLoad);
   }, []);
 
-  const getGifList = async () => {
-    try {
-      const provider = getProvider();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const program = new Program(idl as any, programID, provider);
-      const account = await program.account.baseAccount.fetch(
-        baseAccount.publicKey
-      );
-
-      console.log("Got the account", account);
-      setGifList(account.gifList);
-    } catch (error) {
-      console.log("Error in getGifList: ", error);
-      setGifList(null);
-    }
-  };
-
   useEffect(() => {
     if (walletAddress) {
-      console.log("Fetching GIF list...");
-      getGifList();
+      console.log("Fetching Tweet list...");
+      getTweetList();
     }
   }, [walletAddress]);
 
   return (
-    <Screen>
+    <Screen style={{ paddingBottom: "1rem" }}>
       {walletAddress && <NavBar walletAddress={walletAddress} />}
       <Container
         style={{
@@ -279,10 +238,7 @@ const Home: NextPage = () => {
           marginTop: "2rem",
         }}
       >
-        <p className="header">💎 Diamond GIF Portal 💎</p>
-        <p className="sub-text">
-          ✨💎 View your GIF collection in the metaverse 💎✨
-        </p>
+        <p className="header">Tweet Portal</p>
 
         {walletAddress
           ? renderConnectedContainer()
@@ -291,6 +247,11 @@ const Home: NextPage = () => {
       <Footer
         socialMedia={[
           { alt: "Twitter", href: TWITTER_LINK, logo: "/twitter-logo.svg" },
+          {
+            alt: "Twitter",
+            href: "https://twitter.com/JoshTsch",
+            logo: "/twitter-logo.svg",
+          },
         ]}
       />
     </Screen>
