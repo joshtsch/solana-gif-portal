@@ -140,10 +140,13 @@ const Home: NextPage = () => {
     try {
       const provider = getProvider();
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const program = new Program(idl as any, programID, provider);
+      console.log({ key: baseAccount.publicKey, programID, provider });
+      const program = new Program(idl as any, programID.toString(), provider);
+      console.log({ secret });
       const account = await program.account.baseAccount.fetch(
-        baseAccount.publicKey
+        baseAccount.publicKey.toString()
       );
+      console.log({ account });
 
       console.log("Got the account", account);
       setTweetList(

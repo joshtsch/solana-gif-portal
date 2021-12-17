@@ -3,7 +3,6 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "npm run get-key-pair",
     "build": "next build",
     "get-idl": "cp ./myepicproject/target/idl/myepicproject.json ./idl/idl.json",
     "start": "next start",
