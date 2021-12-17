@@ -7,6 +7,7 @@ import {
   clusterApiUrl,
 } from "@solana/web3.js";
 import type { NextPage } from "next";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Input } from "../components/Input";
 import Tweet from "../components/Tweet";
@@ -246,11 +247,28 @@ const Home: NextPage = () => {
       </Container>
       <Footer
         socialMedia={[
-          { alt: "Twitter", href: TWITTER_LINK, logo: "/twitter-logo.svg" },
           {
-            alt: "Twitter",
             href: "https://twitter.com/JoshTsch",
-            logo: "/twitter-logo.svg",
+            text: (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                <Image
+                  alt={"@JoshTsch Twitter Link"}
+                  src="/twitter-logo.svg"
+                  width={35}
+                  height={35}
+                />
+                {"Built by @JoshTsch"}
+              </div>
+            ),
+          },
+          {
+            href: TWITTER_LINK,
+            text: "much 💖💖💖 to @_buildspace",
           },
         ]}
       />
