@@ -11,7 +11,7 @@ interface FetchNFTMetadataArgs {
   setLoading: SetLoading;
 }
 
-const fetchNFTMetadata = async ({
+const getNFTIds = async ({
   abi,
   cb,
   contractAddress,
@@ -24,14 +24,9 @@ const fetchNFTMetadata = async ({
   const signer = provider.getSigner();
   const contract = new ethers.Contract(contractAddress, abi, signer);
 
-  const txn = await contract.tokenURI(464);
-  // if (txn.name) {
-  //   console.log("User has character NFT");
-  cb(txn);
-  // setCharacterNFT(transformCharacterData(txn));
-  // } else {
-  //   console.log("No character NFT found");
-  // }
+  const txn = await contract.walletOfOwner(currentAccount);
+  const remap = txn.map((thing: BigNumber) => thing.toNumber());
+  cb(remap);
 
   setLoading(false);
 };
@@ -41,11 +36,8 @@ type UseGetNFTMetadataArgs = Omit<
   "currentAccount" | "setLoading" | "cb"
 >;
 
-export function useGetNFTMetadata({
-  abi,
-  contractAddress,
-}: UseGetNFTMetadataArgs) {
-  const { currentAccount, setLoading, setNfts } = useContext(
+export function useGetNFTIds({ abi, contractAddress }: UseGetNFTMetadataArgs) {
+  const { currentAccount, setLoading, setNftIds } = useContext(
     EthereumWalletContext
   );
 
@@ -53,15 +45,16 @@ export function useGetNFTMetadata({
     if (currentAccount) {
       console.log("CurrentAccount:", currentAccount);
 
-      fetchNFTMetadata({
+      getNFTIds({
         abi,
         cb: (txn) => {
-          setNfts([{ uri: txn }]);
+          console.log(txn);
+          setNftIds(txn);
         },
         contractAddress,
         currentAccount,
         setLoading,
       });
     }
-  }, [abi, contractAddress, currentAccount, setLoading, setNfts]);
+  }, [abi, contractAddress, currentAccount, setLoading, setNftIds]);
 }

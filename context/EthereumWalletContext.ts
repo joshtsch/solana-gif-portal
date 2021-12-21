@@ -7,6 +7,8 @@ export type SetLoading = Dispatch<SetStateAction<Loading>>;
 export type NFT = { uri: string };
 export type NFTs = NFT[] | null;
 export type SetNFTs = Dispatch<SetStateAction<NFTs>>;
+export type NFTIds = number[] | null;
+export type SetNFTIds = Dispatch<SetStateAction<NFTIds>>;
 
 interface EthereumWalletContextType {
   currentAccount: CurrentAccount;
@@ -15,6 +17,8 @@ interface EthereumWalletContextType {
   setLoading: SetLoading;
   nfts: NFTs;
   setNfts: SetNFTs;
+  nftIds: NFTIds;
+  setNftIds: SetNFTIds;
 }
 
 export const EthereumWalletContext = createContext<EthereumWalletContextType>({
@@ -24,4 +28,6 @@ export const EthereumWalletContext = createContext<EthereumWalletContextType>({
   setLoading: () => null,
   nfts: [],
   setNfts: () => null,
+  nftIds: null,
+  setNftIds: () => null,
 });

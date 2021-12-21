@@ -2,12 +2,26 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
 type Data = {
-  name: string;
+  nfts: string[];
 };
 
-export default function handler(
+export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  res.status(200).json({ name: "John Doe" });
+  const { tokenIds } = JSON.parse(req.body);
+  console.log(tokenIds);
+  const nftPromises = tokenIds.map((id: number) =>
+    fetch(
+      `https://cloudflare-ipfs.com/ipfs/QmTycTt6y9SapbqVVNHFj8uAKhQt8rTFu2FqfKrWtqadMB/${id}.json`
+    )
+  );
+
+  const responses = await Promise.all(nftPromises);
+  console.log("responses", responses);
+  const responsePromises = responses.map((resp) => resp.json());
+  const response = await Promise.all(responsePromises);
+  const images = response.map((resp) => resp.image);
+  console.log("images", images);
+  res.status(200).json({ nfts: images });
 }

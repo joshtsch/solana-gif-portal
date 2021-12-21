@@ -5,6 +5,7 @@ import {
   CurrentAccount,
   EthereumWalletContext,
   Loading,
+  NFTIds,
   NFTs,
 } from "../context";
 import "../styles/globals.css";
@@ -21,6 +22,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   const [currentAccount, setCurrentAccount] = useState<CurrentAccount>(null);
   const [loading, setLoading] = useState<Loading>(false);
   const [nfts, setNfts] = useState<NFTs>(null);
+  const [nftIds, setNftIds] = useState<NFTIds>(null);
 
   return (
     <EthereumWalletContext.Provider
@@ -31,6 +33,8 @@ function MyApp({ Component, pageProps }: AppProps) {
         setLoading,
         nfts,
         setNfts,
+        nftIds,
+        setNftIds,
       }}
     >
       <Component {...pageProps} />

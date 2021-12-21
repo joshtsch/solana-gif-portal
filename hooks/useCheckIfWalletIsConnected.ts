@@ -43,9 +43,9 @@ export function useCheckIfWalletIsConnected() {
 
     const checkNetwork = async () => {
       try {
-        if (window.ethereum.networkVersion !== "4") {
-          alert("Please connect to Rinkeby!");
-        }
+        // if (window.ethereum.networkVersion !== "4") {
+        //   alert("Please connect to Rinkeby!");
+        // }
       } catch (error) {
         console.log(error);
       }
