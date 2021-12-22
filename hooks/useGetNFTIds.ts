@@ -48,7 +48,7 @@ export function useGetNFTIds({ abi, contractAddress }: UseGetNFTMetadataArgs) {
       getNFTIds({
         abi,
         cb: (txn) => {
-          console.log(txn);
+          console.log("Found nfts", txn);
           setNftIds(txn);
         },
         contractAddress,
