@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useContext, useEffect } from "react";
 import Loading from "react-loading";
 import useSWR from "swr";
-import { Goon } from "../components/Goon";
+import { NftCard } from "../components/NftCard";
 import { EthereumWalletContext } from "../context";
 import goonzContractAbi from "../contracts/CryptoonGoonzAbi.json";
 import { useCheckIfWalletIsConnected, useGetNFTIds } from "../hooks";
@@ -89,8 +89,12 @@ const Goonz: NextPage = () => {
           }}
         >
           {loading && <Loading type="spinningBubbles" color="#fff" />}
-          {data?.nfts.map((nft: string) => (
-            <Goon nft={nft} key={nft} />
+          {data?.nfts.map((nft: string, idx: number) => (
+            <NftCard
+              nft={nft}
+              key={nft}
+              tokenId={nftIds ? nftIds[idx] : undefined}
+            />
           ))}
         </div>
       </Container>
