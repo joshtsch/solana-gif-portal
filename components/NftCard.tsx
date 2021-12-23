@@ -32,7 +32,7 @@ export function NftCard({ nft, tokenId }: NftCardProps) {
           setXys(calc(e.clientX, e.clientY, rect));
         }}
       >
-        <Image src={src} width={645} height={587} alt="NFT" />
+        <Image src={src} width={400} height={364} alt="NFT" />
         <h2>#{tokenId}</h2>
       </animated.div>
       <div style={{ display: "flex" }}>
